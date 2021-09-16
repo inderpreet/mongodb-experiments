@@ -1,81 +1,100 @@
-const mongoose = require('mongoose');
-const controlSchema = require('./ControlSchema');
-const rawData = require('./DummyData');
+const DatabaseConnection = require("./src/DatabaseConnection");
 
-const connectionString = 'mongodb://localhost/2021';
+var db = new DatabaseConnection();
 
-mongoose.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+// const mongoose = require("mongoose");
+// const controlSchema = require("./ControlSchema");
+// const rawData = require("./DummyData");
 
-var isConnected = false;
+// const connectionString = "mongodb://localhost/ControlsData";
+// const collectionName = "2021";
 
-// create a connection to the database
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', ()=>{
-	console.log('mongodb connected!');
-	isConnected = true;
-	checkCollection('control-data-1');
-});
+// mongoose.connect(connectionString, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   useFindAndModify: false,
+// });
 
-const checkCollection = (name)=>{
-	db.db.listCollections({name: name}).toArray( (err, names) => {
-		if (err){
-			console.log(err);
-			return -1;
-		} 
-		else {
-			if(names.length > 0) {
-				console.log("FOUND : \n");
-				console.log(names);
-				console.log("\n\n");
-				return 0;
-			} else {
-				console.log("Collection not found")
-				return 1;
-			}
+// var isConnected = false;
 
-		}
-	})
-}
+// // create a connection to the database
+// const db = mongoose.connection;
+// db.on("error", console.error.bind(console, "connection error:"));
+// db.once("open", () => {
+//   console.log("mongodb connected!");
+//   isConnected = true;
+//   if (collectionExists(collectionName) == 1) {
+//     console.log("EXISITS");
+//     updateDocument(rawData);
+//   }
+//   //   createDocument();
+// });
 
-const updateData = (data)=> {
+// /**
+//  * Function to test if a collection exisits in the current database
+//  * @param {*} name of the collection
+//  * @returns 
+//  */
+// const collectionExists = (name) => {
+//   return db.db.listCollections({ name: name }).toArray((err, names) => {
+//     if (err) {
+//       console.log(err);
+//       return -1;
+//     } else {
+//       if (names.length > 0) {
+//         console.log("FOUND : \n");
+//         console.log(names);
+//         console.log("\n\n");
+//         return 1;
+//       } else {
+//         console.log("Collection not found");
+//         return 0;
+//       }
+//     }
+//   });
+// };
 
-}
+// const createDocument = () => {
+//   // define model - shows collection name as control 1
+//   const Control = mongoose.model(collectionName, controlSchema);
 
-// define model - shows collection name as control 1
-const Control = mongoose.model('control-data-1', controlSchema);
+//   // create dummy data
+//   const data = new Control({
+//     ctrlid: "1234567890",
+//     month: 5,
+//     data: [
+//       {
+//         ver: "1",
+//         evtime: "2021-05-27",
+//         ctrlid: "124565667",
+//         eventid: "1234",
+//         data1: "00",
+//         data2: "01",
+//         comment: "Test Data",
+//       },
+//     ],
+//   });
 
-// create dummy data
-const data = new Control(
-	{
-		ctrlid: '1234567890',
-		month: 5,
-		data: [{
-			ver: '1',
-			evtime: '2021-05-27',
-			ctrlid: '124565667',
-			eventid: '1234',
-			data1: '00',
-			data2: '01',
-			comment: 'Test Data'
-		}]
-	});
+//   // save to database
+//   data.save((err, res) => {
+//     if (err) return console.error(err);
+//     console.log(res);
+//   });
 
-// save to database
-data.save( (err, res) => {
-	if (err) return console.error(err);
-	console.log(res);
-});
+//   setTimeout(updateDocument, 1500, rawData);
+// };
 
-setTimeout( (arg)=>{
-	Control.findOneAndUpdate(
-		{ ctrlid: '1234567890' },
-		{ $push: { data: arg } },
-		(err, success) => {
-			if( err ) console.log();
-			else console.log('updated');
-		}
-	);
-}, 1500, rawData);
-
-
+// const updateDocument = (arg) => {
+//   const Control = mongoose.model(collectionName, controlSchema);
+//   Control.findOneAndUpdate(
+//     { ctrlid: "1234567890" },
+//     { $push: { data: arg } },
+//     (err, success) => {
+//       if (err) console.log();
+//       else {
+//         console.log("Record updated. Closing Connection");
+//         db.close();
+//       }
+//     }
+//   );
+// };
