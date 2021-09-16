@@ -94,42 +94,53 @@ class DatabaseConnection {
     });
   }
 
+  /**
+   * Function to extract month number
+   * @param {*} str e.g. "2021-1-14"
+   */
+  extractMonthNumber(str) {
+    if (str == null) return "";
+    try {
+      var start = str.indexOf("-");
+      var end = str.indexOf("-", start+1);
+      var ret = str.slice(start + 1, end);
+      log(`Month Extracted ${ret}`);
+      return ret;
+    } catch (e) {
+      log(e);
+      return "";
+    }
+  }
+
   validateDataDocument(arg) {
-    if (arg == null) return -1;
-    if (arg.ctrlid == null) return -1;
+    if (arg == null || arg.ctrlid == null || arg.evdate == null) return -1;
+    if (this.extractMonthNumber(arg.evdate) == null || this.extractMonthNumber(arg.evdate) == "") return -1;
     else return 0;
   }
 
   updateDocumentByCtrlId(arg) {
-    if (this.validateDataDocument(arg) == -1) {
-      this.isDone = 1;
-      return -1;
-    }
-    const Control = mongoose.model(collectionName, controlSchema);
-    try {
-      const q = Control.findOneAndUpdate(
-        { ctrlid: arg.ctrlid, month: 9 },
-        { $push: { data: arg } },
-        { upsert: true, maxTimeMS: 5 },
-        (err, success) => {
-          if (err) console.log();
-          else {
-            console.log("Record updated. Closing Connection");
-            this.isDone = 1;
+    if (this.validateDataDocument(arg) == 0) {
+      const Control = mongoose.model(collectionName, controlSchema);
+      const mon = this.extractMonthNumber(arg.evdate);
+      console.log(`Month Variable is ${mon}`);
+      try {
+        const q = Control.findOneAndUpdate(
+          { ctrlid: arg.ctrlid, month: mon },
+          { $push: { data: arg } },
+          { upsert: true, maxTimeMS: 5 },
+          (err, success) => {
+            if (err) console.log();
+            else {
+              console.log("Record updated. Closing Connection");
+              this.isDone = 1;
+            }
           }
-        }
-      );
-    } catch (e) {
-      print(e);
-      // (err, success) => {
-      //   if (err) console.log();
-      //   else {
-      //     console.log("Record updated. Closing Connection");
-      //     this.isDone = 1;
-      //   }
-      // }
-    } finally {
-      this.isDone = 1;
+        );
+      } catch (e) {
+        print(e);
+      } finally {
+        this.isDone = 1;
+      }
     }
   } // end updateDocument
 
