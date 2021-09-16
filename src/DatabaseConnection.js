@@ -22,30 +22,58 @@ class DatabaseConnection {
     this.db.once("open", () => {
       console.log("mongodb connected!");
       this.isConnected = true;
-      if (this.collectionExists(collectionName) == 1) {
-        console.log("EXISITS");
-        // this.updateDocument(rawData);
-      }
-      //   createDocument();
+      this.collectionExists(collectionName).then((ret) => {
+        log(`Ret is ${ret}`);
+        if (ret == 1) {
+          log("Collection Exists!");
+          // this.updateDocument(rawData);
+        }
+      });
     });
   } // end Constructor
 
   /**
    * Function to test if a collection exisits in the current database
    * @param {*} name of the collection
-   * @returns
+   * @returns 1 if Collection is found and 0 if no match -1 if error
    */
-  collectionExists(name) {
-    log(`Searching for collection ${name} in database`);
+  async collectionExists(name) {
+    return new Promise((resolve, reject) => {
+      this.db.db.listCollections({ name: name }).toArray((err, names) => {
+        log(`Searching for collection ${name} in database`);
+        if (err) {
+          log(err);
+          resolve(-1);
+        } else {
+          if (names.length > 0) {
+            log("Collection Found :");
+            log(names);
+            resolve(1);
+          } else {
+            console.log("Collection not found");
+            resolve(0);
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Function to test if a collection exisits in the current database
+   * @param {*} name of the collection
+   * @returns 1 if Collection is found and 0 if no match -1 if error
+   */
+  collectionExistsOld(name) {
     return this.db.db.listCollections({ name: name }).toArray((err, names) => {
+      log(`Searching for collection ${name} in database`);
       if (err) {
-        console.log(err);
+        log(err);
         return -1;
       } else {
         if (names.length > 0) {
-          console.log("FOUND : \n");
-          console.log(names);
-          console.log("\n\n");
+          log("Collection Found : \n");
+          log(names);
+          log("\n\n");
           return 1;
         } else {
           console.log("Collection not found");
