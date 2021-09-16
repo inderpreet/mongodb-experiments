@@ -9,6 +9,7 @@ const collectionName = "2021";
 
 class DatabaseConnection {
   constructor() {
+    this.isDone = 0;
     mongoose.connect(connectionString, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -23,14 +24,24 @@ class DatabaseConnection {
       console.log("mongodb connected!");
       this.isConnected = true;
       this.collectionExists(collectionName).then((ret) => {
-        log(`Ret is ${ret}`);
         if (ret == 1) {
           log("Collection Exists!");
           // this.updateDocument(rawData);
+        } else {
+          // createCollection?
         }
+        this.isDone = 1;
       });
     });
   } // end Constructor
+
+  closeDatabaseConnection() {
+    this.db.close();
+  }
+
+  getIsDone(){
+          return this.isDone;
+  }
 
   /**
    * Function to test if a collection exisits in the current database
