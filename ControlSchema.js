@@ -7,6 +7,7 @@ const controlSchema = new mongoose.Schema({
 	data: [{
 		ver: String,
 		evtime: String,
+		evdate: String,
 		ctrlid: String,
 		eventid: String,
 		data1: String,
