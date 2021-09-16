@@ -95,28 +95,42 @@ class DatabaseConnection {
   }
 
   validateDataDocument(arg) {
-    if(arg==null) return -1;
+    if (arg == null) return -1;
     if (arg.ctrlid == null) return -1;
     else return 0;
   }
 
   updateDocumentByCtrlId(arg) {
-    if (this.validateDataDocument(arg) == -1){
+    if (this.validateDataDocument(arg) == -1) {
       this.isDone = 1;
-      return -1;      
-    } 
+      return -1;
+    }
     const Control = mongoose.model(collectionName, controlSchema);
-    Control.findOneAndUpdate(
-      { ctrlid: "1234567890" },
-      { $push: { data: arg } },
-      (err, success) => {
-        if (err) console.log();
-        else {
-          console.log("Record updated. Closing Connection");
-          this.isDone = 1;
+    try {
+      const q = Control.findOneAndUpdate(
+        { ctrlid: arg.ctrlid, month: 9 },
+        { $push: { data: arg } },
+        { upsert: true, maxTimeMS: 5 },
+        (err, success) => {
+          if (err) console.log();
+          else {
+            console.log("Record updated. Closing Connection");
+            this.isDone = 1;
+          }
         }
-      }
-    );
+      );
+    } catch (e) {
+      print(e);
+      // (err, success) => {
+      //   if (err) console.log();
+      //   else {
+      //     console.log("Record updated. Closing Connection");
+      //     this.isDone = 1;
+      //   }
+      // }
+    } finally {
+      this.isDone = 1;
+    }
   } // end updateDocument
 
   createDocument() {
