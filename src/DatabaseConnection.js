@@ -30,7 +30,7 @@ class DatabaseConnection {
         } else {
           // createCollection?
         }
-        this.isDone = 1;
+        // this.isDone = 1;
       });
     });
   } // end Constructor
@@ -39,8 +39,8 @@ class DatabaseConnection {
     this.db.close();
   }
 
-  getIsDone(){
-          return this.isDone;
+  getIsDone() {
+    return this.isDone;
   }
 
   /**
@@ -94,7 +94,17 @@ class DatabaseConnection {
     });
   }
 
-  updateDocument(arg) {
+  validateDataDocument(arg) {
+    if(arg==null) return -1;
+    if (arg.ctrlid == null) return -1;
+    else return 0;
+  }
+
+  updateDocumentByCtrlId(arg) {
+    if (this.validateDataDocument(arg) == -1){
+      this.isDone = 1;
+      return -1;      
+    } 
     const Control = mongoose.model(collectionName, controlSchema);
     Control.findOneAndUpdate(
       { ctrlid: "1234567890" },
@@ -103,7 +113,7 @@ class DatabaseConnection {
         if (err) console.log();
         else {
           console.log("Record updated. Closing Connection");
-          db.close();
+          this.isDone = 1;
         }
       }
     );
