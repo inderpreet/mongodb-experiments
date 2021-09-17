@@ -102,7 +102,7 @@ class DatabaseConnection {
     if (str == null) return "";
     try {
       var start = str.indexOf("-");
-      var end = str.indexOf("-", start+1);
+      var end = str.indexOf("-", start + 1);
       var ret = str.slice(start + 1, end);
       log(`Month Extracted ${ret}`);
       return ret;
@@ -114,7 +114,11 @@ class DatabaseConnection {
 
   validateDataDocument(arg) {
     if (arg == null || arg.ctrlid == null || arg.evdate == null) return -1;
-    if (this.extractMonthNumber(arg.evdate) == null || this.extractMonthNumber(arg.evdate) == "") return -1;
+    if (
+      this.extractMonthNumber(arg.evdate) == null ||
+      this.extractMonthNumber(arg.evdate) == ""
+    )
+      return -1;
     else return 0;
   }
 
@@ -122,7 +126,7 @@ class DatabaseConnection {
     if (this.validateDataDocument(arg) == 0) {
       const Control = mongoose.model(collectionName, controlSchema);
       const mon = this.extractMonthNumber(arg.evdate);
-      console.log(`Month Variable is ${mon}`);
+      log(`Month Variable is ${mon}`);
       try {
         const q = Control.findOneAndUpdate(
           { ctrlid: arg.ctrlid, month: mon },
@@ -131,7 +135,7 @@ class DatabaseConnection {
           (err, success) => {
             if (err) console.log();
             else {
-              console.log("Record updated. Closing Connection");
+              log("Record updated. Closing Connection");
               this.isDone = 1;
             }
           }
@@ -143,6 +147,37 @@ class DatabaseConnection {
       }
     }
   } // end updateDocument
+
+  async findAllDocuments() {
+    const Control = mongoose.model(collectionName, controlSchema);
+    try {
+      let ret = await Control.find({});
+      return ret;
+    } catch (e) {
+      log(e);
+      return "";
+    } finally {
+      this.isDone = 1;
+    }
+  }
+
+  async findDocumentByCtrlIdAndMonth(ctrlid, month) {
+    if (typeof month === "number") {
+      const Control = mongoose.model(collectionName, controlSchema);
+      try {
+        let ret = await Control.find({ month: month });
+        return ret[0].data;
+      } catch (e) {
+        log(e);
+        return "";
+      } finally {
+        this.isDone = 1;
+      }
+    } else {
+      log("month variable passed to findDocument method is not a number");
+      return "";
+    }
+  }
 
   createDocument() {
     // define model - shows collection name as control 1

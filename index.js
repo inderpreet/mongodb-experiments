@@ -4,7 +4,9 @@ const DummyData = require("./DummyData");
 
 const main = async () => {
   var db = new DatabaseConnection();
-  db.updateDocumentByCtrlId(DummyData);
+  // db.updateDocumentByCtrlId(DummyData);
+  // db.findDocument().then((v) => console.log(v[1].data));
+  db.findDocumentByCtrlIdAndMonth("12343424", 9).then((v) => console.log(v));
 
   const checkAndExitProgram = setInterval(() => {
     if (db.getIsDone() == 1) {
